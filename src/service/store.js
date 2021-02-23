@@ -19,8 +19,6 @@ class Store {
   addSelf = (text) => {
     this.selves.push(text);
     this.value = "";
-    console.log(text);
-    console.log(this.selves.length);
   };
   get getCount() {
     return this.selves.length;

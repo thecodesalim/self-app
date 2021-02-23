@@ -6,12 +6,12 @@ import {
   View,
   Text,
   TextInput,
-  StatusBar,
   Pressable,
   KeyboardAvoidingView,
+  Image,
   Dimensions,
 } from "react-native";
-
+import { launchImageLibrary } from "react-native-image-picker";
 
 import { inject, observer } from "mobx-react";
 const windowWidth = Dimensions.get("window").width;
@@ -19,7 +19,38 @@ const windowHeight = Dimensions.get("window").height;
 
 function App(props) {
   const { value, updateText, selves, addSelf, getCount } = props.store;
- 
+
+  const [imageSource, setImageSource] = React.useState(null);
+
+  function selectImage() {
+    let options = {
+      title: "You can choose one image",
+      maxWidth: 256,
+      maxHeight: 256,
+      includeBase64: true,
+      storageOptions: {
+        skipBackup: true,
+      },
+    };
+
+    launchImageLibrary(options, (response) => {
+      console.log({ response });
+
+      if (response.didCancel) {
+        console.log("User cancelled photo picker");
+        Alert.alert("You did not select any image");
+      } else if (response.error) {
+        console.log("ImagePicker Error: ", response.error);
+      } else if (response.customButton) {
+        console.log("User tapped custom button: ", response.customButton);
+      } else {
+        let source = { uri: response.uri };
+        setImageSource(response.base64);
+        console.log({ source });
+      }
+    });
+  }
+
   return (
     <>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#f6f4ec" }}>
@@ -45,6 +76,18 @@ function App(props) {
               }}
             >
               <Text>Count: {getCount}</Text>
+              <Pressable
+                style={{ alignSelf: "center" }}
+                onPress={() => selectImage()}
+              >
+                <Text>Image</Text>
+              </Pressable>
+              <Image
+                source={{
+                  uri: `data:image/jpeg;base64,${imageSource}`,
+                }}
+                style={{ height: 200, width: 250 }}
+              />
               {selves.map((i) => (
                 <Text
                   selectable={true}
@@ -53,7 +96,7 @@ function App(props) {
                     color: "#ffff",
                     backgroundColor: "rgb(56, 133, 247)",
                     margin: 2,
-                    borderRadius:15,
+                    borderRadius: 15,
                     padding: 10,
                     alignSelf: "flex-start",
                     overflow: "hidden",
