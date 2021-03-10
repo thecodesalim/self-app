@@ -18,7 +18,15 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 function App(props) {
-  const { value, updateText, selves, addSelf, getCount } = props.store;
+  const {
+    value,
+    updateText,
+    selves,
+    addSelf,
+    getSelfCount,
+    addPhoto,
+    photos,
+  } = props.store;
 
   const [imageSource, setImageSource] = React.useState(null);
 
@@ -46,6 +54,7 @@ function App(props) {
       } else {
         let source = { uri: response.uri };
         setImageSource(response.base64);
+        addPhoto(response.base64);
         console.log({ source });
       }
     });
@@ -75,21 +84,22 @@ function App(props) {
                 backgroundColor: "#f6f4ec",
               }}
             >
-              <Text>Count: {getCount}</Text>
+              <Text>Count: {getSelfCount}</Text>
               <Pressable
                 style={{ alignSelf: "center" }}
                 onPress={() => selectImage()}
               >
                 <Text>Image</Text>
               </Pressable>
-              <Image
+              {/* <Image
                 source={{
                   uri: `data:image/jpeg;base64,${imageSource}`,
                 }}
                 style={{ height: 200, width: 250 }}
-              />
-              {selves.map((i) => (
+              /> */}
+              {selves.map((i, index) => (
                 <Text
+                  key={index}
                   selectable={true}
                   style={{
                     fontSize: 20,
@@ -104,6 +114,22 @@ function App(props) {
                 >
                   {i}
                 </Text>
+              ))}
+              {photos.map((i, index) => (
+                <Image
+                  key={index}
+                  style={{
+                    borderColor: "red",
+                    borderWidth: 2,
+                    borderRadius: 40,
+                    overflow: 'hidden',
+                  }}
+                  resizeMode={"cover"}
+                  source={{
+                    uri: `data:image/jpeg;base64,${i}`,
+                  }}
+                  style={{ height: 200, width: 250 }}
+                />
               ))}
             </ScrollView>
             <View

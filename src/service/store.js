@@ -3,6 +3,7 @@ import { makeObservable, computed, observable, action } from "mobx";
 class Store {
   value = "";
   selves = [];
+  photos = [];
 
   constructor() {
     makeObservable(this, {
@@ -10,7 +11,9 @@ class Store {
       selves: observable,
       updateText: action,
       addSelf: action,
-      getCount: computed,
+      addPhoto: action,
+      getSelfCount: computed,
+      getPhotoCount: computed
     });
   }
   updateText = (value) => {
@@ -20,8 +23,14 @@ class Store {
     this.selves.push(text);
     this.value = "";
   };
-  get getCount() {
+  addPhoto = uri => {
+    this.photos.push(uri)
+  }
+  get getSelfCount() {
     return this.selves.length;
+  }
+  get getPhotoCount() {
+    return this.photos.length;
   }
 }
 
