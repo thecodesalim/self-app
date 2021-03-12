@@ -14,7 +14,6 @@ class Store {
     });
   }
   updateText = (value) => {
-    console.log(value);
     this.value = value;
   };
   addSelf = (text) => {
@@ -22,7 +21,6 @@ class Store {
     this.value = "";
   };
   get getSelfCount() {
-    console.log("getSelfCount");
     return this.selves.length;
   }
 }

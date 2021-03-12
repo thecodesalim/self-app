@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Image,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { View as MotiView } from "moti";
@@ -19,12 +20,11 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 function RenderText(props) {
-  console.log("hey");
   return (
     <MotiView
-      from={{ scale: 0 }}
-      animate={{ scale: [0.8, 1] }}
-      transition={{ type: "spring" }}
+      from={{ opacity: 0, scale: 0.5, translateX: -100 }}
+      animate={{ opacity: 1, scale: 1, translateX: 10 }}
+      transition={{ type: "timing" }}
     >
       <Text selectable={true} style={styles.text}>
         {props.value}
@@ -37,9 +37,8 @@ function App(props) {
   const { value, updateText, selves, addSelf, getSelfCount } = props.store;
 
   const [imageSource, setImageSource] = React.useState(null);
-  const [text, setText] = React.useState('')
-  const [list, setList] = React.useState(['run', 'walk'])
-
+  const scrollViewRef = React.useRef();
+  //const [text, setText] = React.useState("");
   function selectImage() {
     let options = {
       title: "You can choose one image",
@@ -85,7 +84,13 @@ function App(props) {
               height: windowHeight,
             }}
           >
-            <ScrollView style={styles.scrollView}>
+            <ScrollView
+              ref={scrollViewRef}
+              onContentSizeChange={() =>
+                scrollViewRef.current.scrollToEnd({ animated: true })
+              }
+              style={styles.scrollView}
+            >
               <Text>Count: {getSelfCount}</Text>
               <Pressable
                 style={styles.pressableText}
@@ -112,9 +117,8 @@ function App(props) {
                       }}
                     />
                   );
-                }
-                else {
-                  console.log("nothing")
+                } else {
+                  console.log("nothing");
                 }
               })}
             </ScrollView>
@@ -123,7 +127,7 @@ function App(props) {
                 <TextInput
                   style={styles.textInput}
                   placeholder="type self!"
-                  onChangeText={updateText}
+                  onChangeText={(value) => updateText(value)}
                   value={value}
                 />
                 <Pressable
