@@ -10,19 +10,17 @@ class Store {
       selves: observable,
       updateText: action,
       addSelf: action,
-      getCount: computed,
+      getSelfCount: computed,
     });
   }
   updateText = (value) => {
     this.value = value;
   };
   addSelf = (text) => {
-    this.selves.push(text);
+    this.selves = this.selves.concat(text);
     this.value = "";
-    console.log(text);
-    console.log(this.selves.length);
   };
-  get getCount() {
+  get getSelfCount() {
     return this.selves.length;
   }
 }

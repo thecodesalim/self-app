@@ -23,11 +23,3 @@ target 'Self' do
   end
 end
 
-target 'Self-tvOS' do
-  # Pods for Self-tvOS
-
-  target 'Self-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
