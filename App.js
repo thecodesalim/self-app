@@ -12,23 +12,33 @@ import {
   Dimensions,
 } from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
+import { View as MotiView } from "moti";
 
 import { inject, observer } from "mobx-react";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
+function RenderText(props) {
+  console.log("hey");
+  return (
+    <MotiView
+      from={{ scale: 0 }}
+      animate={{ scale: [0.8, 1] }}
+      transition={{ type: "spring" }}
+    >
+      <Text selectable={true} style={styles.text}>
+        {props.value}
+      </Text>
+    </MotiView>
+  );
+}
+
 function App(props) {
-  const {
-    value,
-    updateText,
-    selves,
-    addSelf,
-    getSelfCount,
-    addPhoto,
-    photos,
-  } = props.store;
+  const { value, updateText, selves, addSelf, getSelfCount } = props.store;
 
   const [imageSource, setImageSource] = React.useState(null);
+  const [text, setText] = React.useState('')
+  const [list, setList] = React.useState(['run', 'walk'])
 
   function selectImage() {
     let options = {
@@ -54,15 +64,14 @@ function App(props) {
       } else {
         let source = { uri: response.uri };
         setImageSource(response.base64);
-        addPhoto(response.base64);
-        console.log({ source });
+        addSelf({ type: "image", value: response.base64 });
       }
     });
   }
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#f6f4ec" }}>
+      <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView
           behavior="padding"
           style={{
@@ -76,95 +85,50 @@ function App(props) {
               height: windowHeight,
             }}
           >
-            <ScrollView
-              style={{
-                flex: 1,
-                width: windowWidth,
-                height: 100,
-                backgroundColor: "#f6f4ec",
-              }}
-            >
+            <ScrollView style={styles.scrollView}>
               <Text>Count: {getSelfCount}</Text>
               <Pressable
-                style={{ alignSelf: "center" }}
+                style={styles.pressableText}
                 onPress={() => selectImage()}
               >
                 <Text>Image</Text>
               </Pressable>
-              {/* <Image
-                source={{
-                  uri: `data:image/jpeg;base64,${imageSource}`,
-                }}
-                style={{ height: 200, width: 250 }}
-              /> */}
-              {selves.map((i, index) => (
-                <Text
-                  key={index}
-                  selectable={true}
-                  style={{
-                    fontSize: 20,
-                    color: "#ffff",
-                    backgroundColor: "rgb(56, 133, 247)",
-                    margin: 2,
-                    borderRadius: 15,
-                    padding: 10,
-                    alignSelf: "flex-start",
-                    overflow: "hidden",
-                  }}
-                >
-                  {i}
-                </Text>
-              ))}
-              {photos.map((i, index) => (
-                <Image
-                  key={index}
-                  style={{
-                    borderColor: "red",
-                    borderWidth: 2,
-                    borderRadius: 40,
-                    overflow: 'hidden',
-                  }}
-                  resizeMode={"cover"}
-                  source={{
-                    uri: `data:image/jpeg;base64,${i}`,
-                  }}
-                  style={{ height: 200, width: 250 }}
-                />
-              ))}
+              {selves.map((i, index) => {
+                if (i.type === "text") {
+                  return <RenderText key={index} value={i.value} />;
+                } else if (i.type === "image") {
+                  return (
+                    <Image
+                      key={index}
+                      resizeMode={"cover"}
+                      source={{
+                        uri: `data:image/jpeg;base64,${i.value}`,
+                      }}
+                      style={{
+                        height: 200,
+                        width: 250,
+                        borderRadius: 20,
+                        margin: 5,
+                      }}
+                    />
+                  );
+                }
+                else {
+                  console.log("nothing")
+                }
+              })}
             </ScrollView>
-            <View
-              style={{
-                width: windowWidth,
-                height: 60,
-                alignSelf: "center",
-                borderWidth: 1,
-                borderColor: "lightgray",
-                backgroundColor: "#f6f4ec",
-              }}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
+            <View style={styles.inputView}>
+              <View style={styles.inputHolder}>
                 <TextInput
-                  style={{
-                    height: 50,
-                    width: windowWidth - 40,
-                    borderColor: "lightgray",
-                    borderWidth: 1,
-                    borderRadius: 50,
-                    alignSelf: "center",
-                  }}
-                  placeholder="Type here to translate!"
-                  value={value}
+                  style={styles.textInput}
+                  placeholder="type self!"
                   onChangeText={updateText}
+                  value={value}
                 />
                 <Pressable
-                  style={{ alignSelf: "center" }}
-                  onPress={() => addSelf(value)}
+                  style={styles.pressableText}
+                  onPress={() => addSelf({ type: "text", value: value })}
                 >
                   <Text>Send</Text>
                 </Pressable>
@@ -177,6 +141,54 @@ function App(props) {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#f6f4ec" },
+  scrollView: {
+    flex: 1,
+    width: windowWidth,
+    height: 100,
+    backgroundColor: "#f6f4ec",
+  },
+  text: {
+    fontSize: 20,
+    color: "#ffff",
+    backgroundColor: "rgb(56, 133, 247)",
+    margin: 5,
+    borderRadius: 15,
+    padding: 10,
+    alignSelf: "flex-start",
+    overflow: "hidden",
+  },
+  image: {
+    borderColor: "red",
+    borderWidth: 2,
+    borderRadius: 40,
+    overflow: "hidden",
+  },
+  inputView: {
+    width: windowWidth,
+    height: 60,
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: "lightgray",
+    backgroundColor: "#f6f4ec",
+  },
+  inputHolder: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  textInput: {
+    padding: 10,
+    height: 50,
+    width: windowWidth - 40,
+    borderColor: "lightgray",
+    borderWidth: 1,
+    borderRadius: 50,
+    alignSelf: "center",
+  },
+  pressableText: { alignSelf: "center" },
+  pressable: {},
+});
 
 export default inject("store")(observer(App));
